@@ -21,6 +21,18 @@ export const metadata: Metadata = {
   title: "AD Standards Tracker — 自动驾驶标准追踪",
   description:
     "Open safety evidence map for automated driving standards, regulations, assessment protocols, and latest updates.",
+  metadataBase: new URL("https://standards.autozyx.com"),
+  openGraph: {
+    title: "AD Standards Tracker — 自动驾驶标准追踪",
+    description:
+      "Open safety evidence map for automated driving standards, regulations, assessment protocols, and latest updates.",
+    url: "https://standards.autozyx.com",
+    type: "website",
+    images: [{ url: "https://autozyx.com/assets/ZYX%20logo.png" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({

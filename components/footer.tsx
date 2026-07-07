@@ -6,7 +6,10 @@ export default function Footer() {
   const { t } = useI18n();
   return (
     <footer className="border-t border-[var(--border)] mt-16 py-8 text-center text-sm text-[var(--muted)]">
-      <div className="mx-auto max-w-6xl px-4">
+      <div
+        className="mx-auto w-full max-w-[1760px]"
+        style={{ paddingLeft: "clamp(20px, 4vw, 72px)", paddingRight: "clamp(20px, 4vw, 72px)" }}
+      >
         <p>
           <strong style={{ fontFamily: "Playfair Display, serif" }}>
             AD·Standards Tracker

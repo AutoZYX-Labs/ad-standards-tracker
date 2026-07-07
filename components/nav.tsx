@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useI18n, LangToggle } from "@/lib/i18n";
 
 export default function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
   const { t, lang } = useI18n();
 
   const LINKS = [
@@ -20,9 +23,59 @@ export default function Nav() {
     { href: "/ask", label: t("nav.ask") },
   ];
 
+  useEffect(() => {
+    const threshold = 10;
+    const minDelta = 4;
+    let lastY = window.scrollY || 0;
+    let ticking = false;
+
+    const update = () => {
+      const y = Math.max(window.scrollY || 0, 0);
+      const delta = y - lastY;
+      const nav = navRef.current;
+      const pinned =
+        y <= threshold ||
+        open ||
+        Boolean(nav?.matches(":hover")) ||
+        Boolean(nav?.contains(document.activeElement));
+
+      setScrolled(y > threshold);
+
+      if (pinned) {
+        setHidden(false);
+      } else if (Math.abs(delta) >= minDelta) {
+        setHidden(delta > 0 && y > (nav?.offsetHeight ?? 72) + threshold);
+      }
+
+      lastY = y;
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    update();
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [open]);
+
   return (
-    <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <nav
+      ref={navRef}
+      onMouseEnter={() => setHidden(false)}
+      onFocusCapture={() => setHidden(false)}
+      className={`sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur transition-[transform,opacity,box-shadow] duration-200 motion-reduce:transition-none ${
+        hidden ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+      } ${scrolled ? "shadow-[0_6px_24px_rgba(42,37,32,0.08)]" : ""}`}
+    >
+      <div
+        className="mx-auto flex w-full max-w-[1760px] items-center justify-between py-3"
+        style={{ paddingLeft: "clamp(20px, 4vw, 72px)", paddingRight: "clamp(20px, 4vw, 72px)" }}
+      >
         <Link href="/" className="flex items-center gap-2 font-semibold no-underline text-[var(--text)]">
           <span
             className="text-[var(--accent)] font-bold text-lg"
@@ -87,7 +140,10 @@ export default function Nav() {
         <div className="flex md:hidden items-center gap-2">
           <LangToggle />
           <button
-            onClick={() => setOpen(!open)}
+            onClick={() => {
+              setOpen(!open);
+              setHidden(false);
+            }}
             className="p-2 text-[var(--muted)] cursor-pointer"
             aria-label="Toggle menu"
           >
@@ -99,7 +155,10 @@ export default function Nav() {
       </div>
 
       {open && (
-        <div className="md:hidden border-t border-[var(--border)] px-4 pb-3">
+        <div
+          className="mx-auto w-full max-w-[1760px] md:hidden border-t border-[var(--border)] pb-3"
+          style={{ paddingLeft: "clamp(20px, 4vw, 72px)", paddingRight: "clamp(20px, 4vw, 72px)" }}
+        >
           {LINKS.map((l) => (
             <Link
               key={l.href}

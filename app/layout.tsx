@@ -45,7 +45,12 @@ export default function RootLayout({
       <body className={`${inter.variable} ${playfair.variable} min-h-screen flex flex-col`}>
         <I18nProvider>
           <Nav />
-          <main className="mx-auto max-w-6xl w-full px-4 py-8 flex-1">{children}</main>
+          <main
+            className="mx-auto w-full max-w-[1760px] py-8 flex-1"
+            style={{ paddingLeft: "clamp(20px, 4vw, 72px)", paddingRight: "clamp(20px, 4vw, 72px)" }}
+          >
+            {children}
+          </main>
           <Footer />
         </I18nProvider>
       </body>
